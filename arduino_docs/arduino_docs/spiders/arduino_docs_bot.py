@@ -41,8 +41,8 @@ class QuotesSpider(scrapy.Spider):
        # Product page basic info
         for web_item in response.css('div.ProductHeader-module--titleContainer--33ed0'): # It takes the relative links from docs.arduino.org
             yield {
-                'title': web_item.css('h1.name::text').getall(),
-                'description': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[1]/p/text()').getall(),
+                'title': web_item.css('h1.name::text').get(),
+                'description': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[1]/p/text()').get(),
                 'product_url': response.url,
                 'tutorials': response.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
                 'url_alive': response.status,
