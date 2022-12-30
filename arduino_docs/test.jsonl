@@ -1,0 +1,16 @@
+{"link": ["/hardware/mkr-1000-wifi", "/hardware/mkr-fox-1200", "/hardware/mkr-gsm-1400", "/hardware/mkr-nb-1500", "/hardware/mkr-vidor-4000", "/hardware/mkr-wan-1300", "/hardware/mkr-wan-1310", "/hardware/mkr-wifi-1010", "/hardware/mkr-zero"]}
+{"link": ["/hardware/mkr-485-shield", "/hardware/mkr-can-shield", "/hardware/mkr-env-shield", "/hardware/mkr-eth-shield", "/hardware/mkr-gps-shield", "/hardware/mkr-imu-shield", "/hardware/mkr-mem-shield", "/hardware/mkr-relay-proto-shield", "/hardware/mkr-rgb-shield", "/hardware/mkr-sd-proto-shield", "/hardware/mkr-therm-shield"]}
+{"link": ["/hardware/mkr-connector-carrier", "/hardware/mkr-iot-carrier", "/hardware/mkr-motor-carrier"]}
+{"link": ["/hardware/due", "/hardware/leonardo", "/hardware/mega-2560", "/hardware/micro", "/hardware/uno-mini-le", "/hardware/uno-rev3", "/hardware/uno-rev3-smd", "/hardware/uno-wifi-rev2", "/hardware/yun-rev2", "/hardware/zero"]}
+{"link": ["/hardware/4-relays-shield", "/hardware/9-axis-motion-shield", "/hardware/ethernet-shield-rev2", "/hardware/motor-shield-rev3"]}
+{"link": ["/hardware/nano", "/hardware/nano-33-ble", "/hardware/nano-33-ble-sense", "/hardware/nano-33-ble-sense-rev2", "/hardware/nano-33-iot", "/hardware/nano-every", "/hardware/nano-rp2040-connect"]}
+{"link": ["/hardware/nano-motor-carrier", "/hardware/nano-screw-terminal-adapter"]}
+{"link": ["/hardware/portenta-h7", "/hardware/portenta-h7-lite", "/hardware/portenta-h7-lite-connected", "/hardware/portenta-x8"]}
+{"link": ["/hardware/portenta-breakout", "/hardware/portenta-max-carrier"]}
+{"link": ["/hardware/portenta-cat-m1-nb-iot-gnss-shield", "/hardware/portenta-vision-shield"]}
+{"link": ["/hardware/edge-control", "/hardware/enclosure-kit", "/hardware/opta", "/hardware/portenta-machine-control", "/hardware/wisgate-edge-lite-2", "/hardware/wisgate-edge-pro"]}
+{"link": ["/hardware/nicla-sense-me", "/hardware/nicla-vision"]}
+{"link": ["/hardware/braccio-carrier"]}
+{"link": ["/hardware/iot-bundle", "/hardware/make-your-uno-kit"]}
+{"title": ["IoT Bundle"], "description": []}
+{"title": ["Make Your UNO Kit"], "description": []}
