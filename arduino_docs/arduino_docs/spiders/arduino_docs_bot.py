@@ -2,6 +2,38 @@ import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 
+import logging
+from colorlog import ColoredFormatter
+
+LOG_LEVEL = logging.DEBUG
+LOGFORMAT = "  %(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s%(reset)s"
+
+logging.root.setLevel(LOG_LEVEL)
+formatter = ColoredFormatter(LOGFORMAT)
+stream = logging.StreamHandler()
+stream.setLevel(LOG_LEVEL)
+stream.setFormatter(formatter)
+log = logging.getLogger('pythonConfig')
+log.setLevel(LOG_LEVEL)
+log.addHandler(stream)
+log.propagate = False
+
+if (log.hasHandlers()):
+    log.handlers.clear()
+log.addHandler(stream)
+
+# logging.getLogger().handlers.clear()
+log.debug("A quirky message only developers care about")
+# log.addHandler(stream)
+
+
+# log.info("Curious users might want to know this")
+# log.warn("Something is wrong and any user should be informed")
+# log.error("Serious stuff, this is red for a reason")
+# log.critical("OH NO everything is on fire")
+
+# TODO Scrappy log level control (now debug)
+
 
 class QuotesSpider(CrawlSpider):
     name = "arduino_bot"
@@ -9,6 +41,7 @@ class QuotesSpider(CrawlSpider):
 
     # Not spider variables
     total_products = 0
+    total_datasheets = 0
 
     def start_requests(self):
         urls = [
@@ -19,7 +52,12 @@ class QuotesSpider(CrawlSpider):
         
     def parse_home(self, response):
 
-        print("HOME PARSER")
+        if (log.hasHandlers()):
+            log.handlers.clear()
+        log.addHandler(stream)
+        log.info("HOME PARSER")
+
+        # print("HOME PARSER")
 
         # Extracting all the links
         for web_item in response.css('div.index-module--product_container--187dc'): # It takes the relative links from docs.arduino.org
@@ -40,7 +78,11 @@ class QuotesSpider(CrawlSpider):
 
     def parse_product_page(self, response):
        
-        print("PRODUCT PAGE PARSER")
+        # print("PRODUCT PAGE PARSER")
+        if (log.hasHandlers()):
+            log.handlers.clear()
+        log.addHandler(stream)
+        log.info("PRODUCT PAGE PARSER")
 
         self.total_products = self.total_products +1
 
@@ -52,17 +94,61 @@ class QuotesSpider(CrawlSpider):
                 'product_url': response.url,
                 'tutorials': response.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
                 'url_alive': response.status,
+                'datasheet': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get(),
             }
             
             # Warning if a webpage is broken
             if (response.status != 200):
-                print("ERROR: WEBPAGE PRODUCT NOT WORKING: "+response.url)
-        
-        # Final code
-        print("Total number of products: "+str(self.total_products))
+                if (log.hasHandlers()):
+                    log.handlers.clear()
+                log.addHandler(stream)      
+                log.error("WEBPAGE PRODUCT NOT WORKING: "+response.url+"\n")
 
-    def parse_product_page(self, response):
+            # Next group of datasheets URLs to go
+            next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get()
+            if next_datasheet is not None:
+                if (log.hasHandlers()):
+                    log.handlers.clear()
+                log.addHandler(stream)      
+                log.info("NEXT DATASHEET "+str(next_datasheet))
+
+                next_datasheet = response.urljoin(next_datasheet)
+                yield scrapy.Request(next_datasheet, callback=self.parse_datasheet)
+            else:
+                print("DATASHEET NOT PRESENT")
+
+
+        # Final code
+        if (log.hasHandlers()):
+            log.handlers.clear()
+        log.addHandler(stream)      
+        log.info("Total number of products: "+str(self.total_products))
+        log.info("Total number of datasheets: "+str(self.total_datasheets))
+
+    def parse_product_page_soup(self, response):
         # TODO the selectors from Scrapy are not enough for scraping a website like this
         # TODO Use beatiful soup as the scrapper
         # TODO Scrape each paragraph and/or section
         pass
+
+    def parse_datasheet(self, response):
+
+        if (log.hasHandlers()):
+            log.handlers.clear()
+        log.addHandler(stream)
+        log.info("DATASHEET PARSER")
+        
+        self.total_datasheets = self.total_datasheets+1
+
+        # Warning if a datasheet is broken
+        if (response.status != 200):
+            print("\n*************************************************************************************\n")
+            print("\nERROR: DATASHEET PRODUCT NOT WORKING: "+response.url+"\n")
+            print("\n*************************************************************************************\n")
+        
+        # Warning if a webpage is broken
+        if (response.status != 200):
+            if (log.hasHandlers()):
+                log.handlers.clear()
+            log.addHandler(stream)      
+            log.error("DATASHEET PRODUCT NOT WORKING: "+response.url+"\n")
