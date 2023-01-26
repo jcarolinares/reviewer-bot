@@ -23,7 +23,7 @@ if (log.hasHandlers()):
 log.addHandler(stream)
 
 # logging.getLogger().handlers.clear()
-log.debug("A quirky message only developers care about")
+# log.debug("A quirky message only developers care about")
 # log.addHandler(stream)
 
 
@@ -51,13 +51,7 @@ class QuotesSpider(CrawlSpider):
             yield scrapy.Request(url=url, callback=self.parse_home)
         
     def parse_home(self, response):
-
-        if (log.hasHandlers()):
-            log.handlers.clear()
-        log.addHandler(stream)
-        log.info("HOME PARSER")
-
-        # print("HOME PARSER")
+        log_print("info","HOME PARSER")
 
         # Extracting all the links
         for web_item in response.css('div.index-module--product_container--187dc'): # It takes the relative links from docs.arduino.org
@@ -77,12 +71,7 @@ class QuotesSpider(CrawlSpider):
 
 
     def parse_product_page(self, response):
-       
-        # print("PRODUCT PAGE PARSER")
-        if (log.hasHandlers()):
-            log.handlers.clear()
-        log.addHandler(stream)
-        log.info("PRODUCT PAGE PARSER")
+        log_print("info","PRODUCT PAGE PARSER")
 
         self.total_products = self.total_products +1
 
@@ -98,32 +87,23 @@ class QuotesSpider(CrawlSpider):
             }
             
             # Warning if a webpage is broken
-            if (response.status != 200):
-                if (log.hasHandlers()):
-                    log.handlers.clear()
-                log.addHandler(stream)      
-                log.error("WEBPAGE PRODUCT NOT WORKING: "+response.url+"\n")
+            log_print("critical","WEBPAGE PRODUCT NOT WORKING: "+response.url+"\n")
 
             # Next group of datasheets URLs to go
             next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get()
             if next_datasheet is not None:
-                if (log.hasHandlers()):
-                    log.handlers.clear()
-                log.addHandler(stream)      
-                log.info("NEXT DATASHEET "+str(next_datasheet))
+                log_print("info","NEXT DATASHEET "+str(next_datasheet))
 
                 next_datasheet = response.urljoin(next_datasheet)
                 yield scrapy.Request(next_datasheet, callback=self.parse_datasheet)
             else:
-                print("DATASHEET NOT PRESENT")
+                log_print("info","DATASHEET NOT PRESENT")
 
 
         # Final code
-        if (log.hasHandlers()):
-            log.handlers.clear()
-        log.addHandler(stream)      
-        log.info("Total number of products: "+str(self.total_products))
-        log.info("Total number of datasheets: "+str(self.total_datasheets))
+        log_print("info","Total number of products: "+str(self.total_products))
+        log_print("info","Total number of datasheets: "+str(self.total_datasheets))
+
 
     def parse_product_page_soup(self, response):
         # TODO the selectors from Scrapy are not enough for scraping a website like this
@@ -132,11 +112,7 @@ class QuotesSpider(CrawlSpider):
         pass
 
     def parse_datasheet(self, response):
-
-        if (log.hasHandlers()):
-            log.handlers.clear()
-        log.addHandler(stream)
-        log.info("DATASHEET PARSER")
+        log_print("info","DATASHEET PARSER")
         
         self.total_datasheets = self.total_datasheets+1
 
@@ -148,7 +124,19 @@ class QuotesSpider(CrawlSpider):
         
         # Warning if a webpage is broken
         if (response.status != 200):
-            if (log.hasHandlers()):
-                log.handlers.clear()
-            log.addHandler(stream)      
-            log.error("DATASHEET PRODUCT NOT WORKING: "+response.url+"\n")
+            log_print("error","DATASHEET PRODUCT NOT WORKING: "+response.url+"\n")
+
+def log_print(message_level, message):
+
+    if (log.hasHandlers()):
+        log.handlers.clear()
+        log.addHandler(stream)
+
+    if (message_level == "error"):
+        log.error(message)
+    elif (message_level == "info"):
+        log.info(message)
+    elif (message_level == "warn"):
+        log.warn(message)
+    elif (message_level == "critical"):
+        log.critical(message)
