@@ -87,7 +87,8 @@ class QuotesSpider(CrawlSpider):
             }
             
             # Warning if a webpage is broken
-            log_print("critical","WEBPAGE PRODUCT NOT WORKING: "+response.url+"\n")
+            if (response.status != 200):
+                log_print("critical","WEBPAGE PRODUCT NOT WORKING: "+response.url+"\n")
 
             # Next group of datasheets URLs to go
             next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get()
