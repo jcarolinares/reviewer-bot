@@ -35,10 +35,15 @@ log.addHandler(stream)
 # TODO Scrappy log level control (now debug)
 
 
+# scrapy runspider spiders/arduino_docs_bot.py -o results.json -L DEBUG
+
 class QuotesSpider(CrawlSpider):
+    
+    # Spider variables
     name = "arduino_bot"
     allowed_domains = ['docs.arduino.cc']
-
+    handle_httpstatus_list = [404] # To handle 404 requests
+    
     # Not spider variables
     total_products = 0
     total_datasheets = 0
@@ -66,12 +71,17 @@ class QuotesSpider(CrawlSpider):
 
             for new_page in next_page:
                 if next_page is not None:
-                    new_page = response.urljoin(new_page)
+                    new_page = response.urljoin(new_page) # +"2" # used to corrupt urls to test 404
+                    log_print("info","New page: "+new_page)
                     yield scrapy.Request(new_page, callback=self.parse_product_page)
 
 
     def parse_product_page(self, response):
         log_print("info","PRODUCT PAGE PARSER")
+
+        # Warning if a webpage is broken
+        if (response.status != 200):
+            log_print("critical","WEBPAGE PRODUCT NOT WORKING: "+response.url+"\n")
 
         self.total_products = self.total_products +1
 
@@ -85,17 +95,14 @@ class QuotesSpider(CrawlSpider):
                 'url_alive': response.status,
                 'datasheet': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get(),
             }
-            
-            # Warning if a webpage is broken
-            if (response.status != 200):
-                log_print("critical","WEBPAGE PRODUCT NOT WORKING: "+response.url+"\n")
 
             # Next group of datasheets URLs to go
             next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get()
             if next_datasheet is not None:
                 log_print("info","NEXT DATASHEET "+str(next_datasheet))
 
-                next_datasheet = response.urljoin(next_datasheet)
+                next_datasheet = response.urljoin(next_datasheet) #+"2" # 2 to test 404 
+                log_print("info",next_datasheet)
                 yield scrapy.Request(next_datasheet, callback=self.parse_datasheet)
             else:
                 log_print("info","DATASHEET NOT PRESENT")
@@ -103,7 +110,7 @@ class QuotesSpider(CrawlSpider):
 
         # Final code
         log_print("info","Total number of products: "+str(self.total_products))
-        log_print("info","Total number of datasheets: "+str(self.total_datasheets))
+        log_print("info","Total number of datasheets: "+str(self.total_datasheets)+"\n")
 
 
     def parse_product_page_soup(self, response):
@@ -114,18 +121,13 @@ class QuotesSpider(CrawlSpider):
 
     def parse_datasheet(self, response):
         log_print("info","DATASHEET PARSER")
-        
+
         self.total_datasheets = self.total_datasheets+1
 
         # Warning if a datasheet is broken
         if (response.status != 200):
-            print("\n*************************************************************************************\n")
-            print("\nERROR: DATASHEET PRODUCT NOT WORKING: "+response.url+"\n")
-            print("\n*************************************************************************************\n")
-        
-        # Warning if a webpage is broken
-        if (response.status != 200):
             log_print("error","DATASHEET PRODUCT NOT WORKING: "+response.url+"\n")
+
 
 def log_print(message_level, message):
 
