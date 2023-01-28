@@ -77,6 +77,7 @@ class QuotesSpider(CrawlSpider):
 
 
     def parse_product_page(self, response):
+        print("\n")
         log_print("info","PRODUCT PAGE PARSER")
 
         # Warning if a webpage is broken
@@ -94,7 +95,14 @@ class QuotesSpider(CrawlSpider):
                 'tutorials': response.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
                 'url_alive': response.status,
                 'datasheet': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get(),
+                'full-pinout': web_item.xpath('//*[@id="resources"]/div/div/div[3]/div[2]/div/a/@href').getall(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
+                'troubleshooting': web_item.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
             }
+
+            log_print("info", "debug ")
+            log_print("info",web_item.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall())
+
+            # TODO call here parse_product_page_soup() function to extract and add more information
 
             # Next group of datasheets URLs to go
             next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get()
@@ -105,12 +113,14 @@ class QuotesSpider(CrawlSpider):
                 log_print("info",next_datasheet)
                 yield scrapy.Request(next_datasheet, callback=self.parse_datasheet)
             else:
-                log_print("info","DATASHEET NOT PRESENT")
+                log_print("warn","DATASHEET NOT PRESENT")
 
+
+        #//*[@id="troubleshooting"]/div/div/div[2]/div[1]/a
 
         # Final code
         log_print("info","Total number of products: "+str(self.total_products))
-        log_print("info","Total number of datasheets: "+str(self.total_datasheets)+"\n")
+        log_print("info","Total number of datasheets: "+str(self.total_datasheets))
 
 
     def parse_product_page_soup(self, response):
