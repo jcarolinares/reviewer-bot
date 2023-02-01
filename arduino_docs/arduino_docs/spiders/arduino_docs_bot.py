@@ -151,8 +151,8 @@ class QuotesSpider(CrawlSpider):
 
         # Warning if a datasheet is broken
         if (response.status != 200):
-            log_print("error","DATASHEET PRODUCT NOT WORKING: "+response.url+"\n")
-            self.datasheets_errors.append("DATASHEET PRODUCT NOT WORKING: "+response.url)
+            log_print("error","DATASHEET NOT WORKING: "+response.url+"\n")
+            self.datasheets_errors.append("DATASHEET NOT WORKING: "+response.url)
 
     def closed(self, reason):
         # Final report
