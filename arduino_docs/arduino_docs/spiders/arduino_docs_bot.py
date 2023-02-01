@@ -27,26 +27,20 @@ log.addHandler(stream)
 # log.addHandler(stream)
 
 
-# log.info("Curious users might want to know this")
-# log.warn("Something is wrong and any user should be informed")
-# log.error("Serious stuff, this is red for a reason")
-# log.critical("OH NO everything is on fire")
-
-# TODO Scrappy log level control (now debug)
-
-
 # scrapy runspider spiders/arduino_docs_bot.py -o results.json -L DEBUG
 
 class QuotesSpider(CrawlSpider):
-    
+
     # Spider variables
     name = "arduino_bot"
     allowed_domains = ['docs.arduino.cc']
     handle_httpstatus_list = [404] # To handle 404 requests
-    
+
     # Not spider variables
     total_products = 0
     total_datasheets = 0
+    product_pages_errors = []
+    datasheets_errors = []
 
     def start_requests(self):
         urls = [
@@ -71,7 +65,7 @@ class QuotesSpider(CrawlSpider):
 
             for new_page in next_page:
                 if next_page is not None:
-                    new_page = response.urljoin(new_page) # +"2" # used to corrupt urls to test 404
+                    new_page = response.urljoin(new_page)  #+"2" # used to corrupt urls to test 404
                     log_print("info","New page: "+new_page)
                     yield scrapy.Request(new_page, callback=self.parse_product_page)
 
@@ -83,6 +77,7 @@ class QuotesSpider(CrawlSpider):
         # Warning if a webpage is broken
         if (response.status != 200):
             log_print("critical","WEBPAGE PRODUCT NOT WORKING: "+response.url+"\n")
+            self.product_pages_errors.append("WEBPAGE PRODUCT NOT WORKING: "+response.url)
 
         self.total_products = self.total_products +1
 
@@ -99,8 +94,8 @@ class QuotesSpider(CrawlSpider):
                 'troubleshooting': web_item.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
             }
 
-            log_print("info", "debug ")
-            log_print("info",web_item.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall())
+            # log_print("info", "debug ")
+            # log_print("info",web_item.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall())
 
             # TODO call here parse_product_page_soup() function to extract and add more information
 
@@ -118,9 +113,29 @@ class QuotesSpider(CrawlSpider):
 
         #//*[@id="troubleshooting"]/div/div/div[2]/div[1]/a
 
-        # Final code
-        log_print("info","Total number of products: "+str(self.total_products))
-        log_print("info","Total number of datasheets: "+str(self.total_datasheets))
+        # # Final report
+        # print("\n")
+        # log_print("info","FINAL REPORT")
+        # log_print("info","Total number of products: "+str(self.total_products))
+        # log_print("info","Total number of datasheets: "+str(self.total_datasheets))
+
+        # # Product pages overview report
+        # print("\n")
+        # if (len(self.product_pages_errors)!=0):
+        #     log_print("critical", "PRODUCT PAGES ERRORS OVERVIEW")
+        #     for item in self.product_pages_errors:
+        #         log_print("error",item)
+        # else:
+        #     log_print("info", "NO PRODUCT PAGES ERRORS FOUND")
+
+        # # Datasheets overview report
+        # print("\n")
+        # if (len(self.datasheets_errors)!=0):
+        #     log_print("critical", "DATASHEETS ERRORS OVERVIEW")
+        #     for item in self.datasheets_errors:
+        #         log_print("error",item)
+        # else:
+        #     log_print("info", "NO DATASHEET ERRORS FOUND")
 
 
     def parse_product_page_soup(self, response):
@@ -137,6 +152,32 @@ class QuotesSpider(CrawlSpider):
         # Warning if a datasheet is broken
         if (response.status != 200):
             log_print("error","DATASHEET PRODUCT NOT WORKING: "+response.url+"\n")
+            self.datasheets_errors.append("DATASHEET PRODUCT NOT WORKING: "+response.url)
+
+    def closed(self, reason):
+        # Final report
+        print("\n")
+        log_print("info","FINAL REPORT")
+        log_print("info","Total number of products: "+str(self.total_products))
+        log_print("info","Total number of datasheets: "+str(self.total_datasheets))
+
+        # Product pages overview report
+        print("\n")
+        if (len(self.product_pages_errors)!=0):
+            log_print("critical", "PRODUCT PAGES ERRORS OVERVIEW")
+            for item in self.product_pages_errors:
+                log_print("error",item)
+        else:
+            log_print("info", "NO PRODUCT PAGES ERRORS FOUND")
+
+        # Datasheets overview report
+        print("\n")
+        if (len(self.datasheets_errors)!=0):
+            log_print("critical", "DATASHEETS ERRORS OVERVIEW")
+            for item in self.datasheets_errors:
+                log_print("error",item)
+        else:
+            log_print("info", "NO DATASHEET ERRORS FOUND")
 
 
 def log_print(message_level, message):
@@ -153,3 +194,4 @@ def log_print(message_level, message):
         log.warn(message)
     elif (message_level == "critical"):
         log.critical(message)
+
