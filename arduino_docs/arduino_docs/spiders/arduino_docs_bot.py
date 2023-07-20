@@ -1,9 +1,12 @@
+import sys
 import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 
 import logging
 from colorlog import ColoredFormatter
+import requests
+import configparser
 
 LOG_LEVEL = logging.DEBUG
 LOGFORMAT = "  %(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s%(reset)s"
@@ -22,12 +25,20 @@ if (log.hasHandlers()):
     log.handlers.clear()
 log.addHandler(stream)
 
-# logging.getLogger().handlers.clear()
-# log.debug("A quirky message only developers care about")
-# log.addHandler(stream)
-
-
 # scrapy runspider spiders/arduino_docs_bot.py -o results.json -L DEBUG
+
+# TODO Create a report system that keep tracks on an external json file of the boards that already had things like datasheets, making a comparison to raise an alert
+# we can already use results.json reading the data and comparing, in case data is not correct, raise an alert.
+
+config_file = "api_credentials.ini"
+config = configparser.ConfigParser()
+config.read(config_file)
+
+if (config.get("IFTTWebhook", "api_token") == "<IFTTT_WEBHOOK>"):
+    print("ERROR-YOU HAVE TO PUT YOUR <IFTTT_WEBHOOK> API TOKEN AT: api_credentials.ini")
+    sys.exit()
+else:
+    ifttt_key = config.get("IFTTWebhook", "api_token")
 
 class QuotesSpider(CrawlSpider):
 
@@ -41,6 +52,7 @@ class QuotesSpider(CrawlSpider):
     total_datasheets = 0
     product_pages_errors = []
     datasheets_errors = []
+    datasheets_warnings = []
 
     def start_requests(self):
         urls = [
@@ -48,17 +60,17 @@ class QuotesSpider(CrawlSpider):
         ]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse_home)
-        
+
     def parse_home(self, response):
         log_print("info","HOME PARSER")
 
         # Extracting all the links
         for web_item in response.css('div.index-module--product_container--187dc'): # It takes the relative links from docs.arduino.org
-            
-            # FIXME Using this yield is problematic for the CSV export
-            yield {
-                'family_links': web_item.xpath('a/@href').getall(),
-            }
+
+            # # FIXME Using this yield is problematic for the CSV export
+            # yield {
+            #     'family_links': web_item.xpath('a/@href').getall(),
+            # }
 
             # Next group of URLs to go
             next_page = web_item.xpath('a/@href').getall()
@@ -94,6 +106,11 @@ class QuotesSpider(CrawlSpider):
                 'troubleshooting': web_item.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
             }
 
+            yield {
+                'title': web_item.css('h1.name::text').get(),
+                'datasheet': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get(),
+            }
+
             # log_print("info", "debug ")
             # log_print("info",web_item.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall())
 
@@ -109,33 +126,7 @@ class QuotesSpider(CrawlSpider):
                 yield scrapy.Request(next_datasheet, callback=self.parse_datasheet)
             else:
                 log_print("warn","DATASHEET NOT PRESENT")
-
-
-        #//*[@id="troubleshooting"]/div/div/div[2]/div[1]/a
-
-        # # Final report
-        # print("\n")
-        # log_print("info","FINAL REPORT")
-        # log_print("info","Total number of products: "+str(self.total_products))
-        # log_print("info","Total number of datasheets: "+str(self.total_datasheets))
-
-        # # Product pages overview report
-        # print("\n")
-        # if (len(self.product_pages_errors)!=0):
-        #     log_print("critical", "PRODUCT PAGES ERRORS OVERVIEW")
-        #     for item in self.product_pages_errors:
-        #         log_print("error",item)
-        # else:
-        #     log_print("info", "NO PRODUCT PAGES ERRORS FOUND")
-
-        # # Datasheets overview report
-        # print("\n")
-        # if (len(self.datasheets_errors)!=0):
-        #     log_print("critical", "DATASHEETS ERRORS OVERVIEW")
-        #     for item in self.datasheets_errors:
-        #         log_print("error",item)
-        # else:
-        #     log_print("info", "NO DATASHEET ERRORS FOUND")
+                self.datasheets_warnings.append("DATASHEET NOT PRESENT: "+response.url)
 
 
     def parse_product_page_soup(self, response):
@@ -153,6 +144,9 @@ class QuotesSpider(CrawlSpider):
         if (response.status != 200):
             log_print("error","DATASHEET NOT WORKING: "+response.url+"\n")
             self.datasheets_errors.append("DATASHEET NOT WORKING: "+response.url)
+
+    def parse_tutorial_page(self, response):
+        pass
 
     def closed(self, reason):
         # Final report
@@ -173,9 +167,21 @@ class QuotesSpider(CrawlSpider):
         # Datasheets overview report
         print("\n")
         if (len(self.datasheets_errors)!=0):
+            aux_string = "DATASHEETS TO CHECK: "
             log_print("critical", "DATASHEETS ERRORS OVERVIEW")
             for item in self.datasheets_errors:
                 log_print("error",item)
+                aux_string = aux_string + item.replace("DATASHEET NOT WORKING:","") + "\n"
+            # print(aux_string)
+            trigger_ifttt_event("docs_arduino_datasheet_error",ifttt_key,aux_string)
+        elif (len(self.datasheets_warnings)!=0):
+            aux_string = "DATASHEETS TO CHECK: "
+            log_print("warning", "DATASHEETS WARNING OVERVIEW")
+            for item in self.datasheets_warnings:
+                log_print("warn",item)
+                aux_string = aux_string + item.replace("DATASHEET NOT PRESENT: ","") + "\n"
+            # print(aux_string)
+            # trigger_ifttt_event("docs_arduino_datasheet_error",ifttt_key,aux_string)
         else:
             log_print("info", "NO DATASHEET ERRORS FOUND")
 
@@ -194,4 +200,17 @@ def log_print(message_level, message):
         log.warn(message)
     elif (message_level == "critical"):
         log.critical(message)
+
+
+def trigger_ifttt_event(event_name, key, value):
+    # url = f'https://maker.ifttt.com/trigger/{event_name}/with/key/{key}'
+    url = f'https://maker.ifttt.com/trigger/{event_name}/json/with/key/{key}'
+    data = {'value1': value, 'value2': "", 'value3': ""}
+    response = requests.post(url, json=data)
+
+    if response.status_code == 200:
+        print(f"POST request to IFTTT for event '{event_name}' was successful.")
+        # print(f"JSON PAYLOAD {data}")
+    else:
+        print(f"POST request to IFTTT for event '{event_name}' failed with status code: {response.status_code}")
 
