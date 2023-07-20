@@ -203,7 +203,6 @@ def log_print(message_level, message):
 
 
 def trigger_ifttt_event(event_name, key, value):
-    # url = f'https://maker.ifttt.com/trigger/{event_name}/with/key/{key}'
     url = f'https://maker.ifttt.com/trigger/{event_name}/json/with/key/{key}'
     data = {'value1': value, 'value2': "", 'value3': ""}
     response = requests.post(url, json=data)
