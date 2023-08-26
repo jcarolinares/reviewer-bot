@@ -101,14 +101,15 @@ class QuotesSpider(CrawlSpider):
                 'product_url': response.url,
                 'tutorials': response.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
                 'url_alive': response.status,
-                'datasheet': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get(),
+                'datasheet': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get(),
                 'full-pinout': web_item.xpath('//*[@id="resources"]/div/div/div[3]/div[2]/div/a/@href').getall(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
                 'troubleshooting': web_item.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
             }
-
+            # FIXME Portenta Machine Control datasheet xpath: "//*[@id="overview"]/div/div[1]/div[2]/div[2]/a" FIXED WITH '//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href'
+            # //a[contains(text(), 'programming')]/@href
             yield {
                 'title': web_item.css('h1.name::text').get(),
-                'datasheet': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get(),
+                'datasheet': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get(),
             }
 
             # log_print("info", "debug ")
@@ -117,7 +118,7 @@ class QuotesSpider(CrawlSpider):
             # TODO call here parse_product_page_soup() function to extract and add more information
 
             # Next group of datasheets URLs to go
-            next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[2]/@href').get()
+            next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get()
             if next_datasheet is not None:
                 log_print("info","NEXT DATASHEET "+str(next_datasheet))
 
@@ -212,4 +213,3 @@ def trigger_ifttt_event(event_name, key, value):
         # print(f"JSON PAYLOAD {data}")
     else:
         print(f"POST request to IFTTT for event '{event_name}' failed with status code: {response.status_code}")
-
