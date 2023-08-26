@@ -40,6 +40,16 @@ if (config.get("IFTTWebhook", "api_token") == "<IFTTT_WEBHOOK>"):
 else:
     ifttt_key = config.get("IFTTWebhook", "api_token")
 
+if (config.get("GithubAPI", "api_token") == "<GITHUB_TOKEN>"):
+    print("ERROR-YOU HAVE TO PUT YOUR <GITHUB_TOKEN> API TOKEN AT: api_credentials.ini")
+    sys.exit()
+else:
+    github_key = config.get("GithubAPI", "api_token")
+
+
+
+
+
 class QuotesSpider(CrawlSpider):
 
     # Spider variables
@@ -175,6 +185,8 @@ class QuotesSpider(CrawlSpider):
                 aux_string = aux_string + item.replace("DATASHEET NOT WORKING:","") + "\n"
             # print(aux_string)
             trigger_ifttt_event("docs_arduino_datasheet_error",ifttt_key,aux_string)
+            log_print("info","RENDER DATASHEETS ON DOCS ARDUINO TO SOLVE ISSUES")
+            trigger_render_datasheet_action(github_key)
         elif (len(self.datasheets_warnings)!=0):
             aux_string = "DATASHEETS TO CHECK: "
             log_print("warning", "DATASHEETS WARNING OVERVIEW")
@@ -213,3 +225,16 @@ def trigger_ifttt_event(event_name, key, value):
         # print(f"JSON PAYLOAD {data}")
     else:
         print(f"POST request to IFTTT for event '{event_name}' failed with status code: {response.status_code}")
+
+def trigger_render_datasheet_action(github_token):
+    url = f'https://api.github.com/repos/arduino/docs-content/actions/workflows/render-datasheets.yaml/dispatches'
+    data = {"ref": "main"}
+    headers = {"Authorization": f"Bearer {github_token}", "Accept": "application/vnd.github.v3+json"}
+    
+    response = requests.post(url, json=data, headers=headers)
+
+    if response.status_code == 200 or response.status_code == 204 :
+        print(f"POST to trigger Render Datasheet Action was succesful")
+        # print(f"JSON PAYLOAD {data}")
+    else:
+        print(f"POST to trigger Render Datasheet Action failed with status code: {response.status_code}")
