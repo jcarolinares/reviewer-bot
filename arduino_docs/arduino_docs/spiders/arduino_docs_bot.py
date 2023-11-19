@@ -209,6 +209,84 @@ class QuotesSpider(CrawlSpider):
                 # 'troubleshooting': web_item_tutorial.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
             }
 
+            # URLs to file
+            tutorial_urls = web_item_tutorial.css('a::attr(href)').extract()
+
+            # Use a set to eliminate duplicates
+            unique_urls = list(set(tutorial_urls))
+
+            f_404 = open("404_tutorials_ext_urls.txt", mode='w')
+            f_404.close()
+
+            with open("tutorials_ext_urls.txt", mode='a') as f:
+                for url in unique_urls:
+                    if "/static/" in url: # To avoid adding static resources like images
+                        log_print("info", f"Static resource ignored: {url}")
+                        continue
+                    elif line_exists("tutorials_ext_urls.txt", url): # To avoid adding duplicates
+                        log_print("info", f"Link duplicated - Ignoring: {url}")
+                        if line_exists("404_tutorials_ext_urls.txt", url):
+                            log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+                            self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+                            with open(path_w, mode='a') as f_404:
+                                f_404.write(url)
+                                f_404.close()
+                        continue
+                    else:
+                        new_link = ""
+                        new_link = response.urljoin(url)
+                        f.write(new_link+"\n")
+
+                        # Check if the links is alive
+                        for ignore_url in self.ignore_url_list:
+                            if url == ignore_url:
+                                log_print("warn", f"Ignoring URL: {url}")
+                                break
+                            else:
+                                if "http" in url:
+                                    try:
+                                        log_print("info", f"Checking: {url}")
+                                        if requests.get(url, timeout = (10, 30)).status_code!=200:
+                                            log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+                                            self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+                                            with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
+                                                f_404.write(url)
+                                                f_404.close()
+                                    except requests.exceptions.ConnectionError:
+                                        log_print("error",'Network connection error')
+                                        log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+                                        self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+                                        with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
+                                            f_404.write(url)
+                                            f_404.close()
+                                    except requests.exceptions.Timeout:
+                                        log_print("error",'The request timed out')
+                                        log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+                                        self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+                                        with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
+                                            f_404.write(url)
+                                            f_404.close()
+            f.close()
+
+
+            # # External Tutorial URLs file cleaning with no duplicates
+            # # Input file with duplicate lines
+            # input_file_path = "tutorials_ext_urls.txt"
+
+            # # Output file to store unique lines
+            # output_file_path = "tutorials_ext_urls.txt"
+
+            # # Read lines from the input file
+            # with open(input_file_path, 'r') as input_file:
+            #     lines = input_file.readlines()
+
+            # # Use a set to eliminate duplicate lines
+            # unique_lines = set(lines)
+
+            # # Write the unique lines to the output file
+            # with open(output_file_path, 'w') as output_file:
+            #     output_file.writelines(unique_lines)
+
             # # URLs check # FIXME problematic - Need to improve to not do too much request to the same URLs and servers
             # tutorial_urls = web_item_tutorial.css('a::attr(href)').extract()
             # for url in tutorial_urls:
@@ -275,11 +353,37 @@ class QuotesSpider(CrawlSpider):
             log_print("critical", "TUTORIAL EXT URLS ERRORS OVERVIEW")
             for item in self.tutorial_ext_urls_errors:
                 log_print("error",item)
+
+            with open("tutorial_broken_ext_links.txt", 'w') as output_file:
+                for line in self.tutorial_ext_urls_errors:
+                    output_file.write(line)
+                output_file.close()
             # trigger_ifttt_event("docs_arduino_datasheet_error",ifttt_key,aux_string)
             # log_print("info","RENDER DATASHEETS ON DOCS ARDUINO TO SOLVE ISSUES")
             # trigger_render_datasheet_action(github_key)
         else:
             log_print("info", "NO TUTORIALS EXT URLS ERRORS FOUND")
+
+
+            # # External Tutorial URLs file cleaning with no duplicates
+            # # Input file with duplicate lines
+            # input_file_path = "tutorials_ext_urls.txt"
+
+            # # Output file to store unique lines
+            # output_file_path = "tutorials_ext_urls.txt"
+
+            # # Read lines from the input file
+            # with open(input_file_path, 'r') as input_file:
+            #     lines = input_file.readlines()
+
+            # # Use a set to eliminate duplicate lines
+            # unique_lines = set(lines)
+
+            # # Write the unique lines to the output file
+            # with open(output_file_path, 'w') as output_file:
+            #     output_file.writelines(unique_lines)
+
+
 
 
 def log_print(message_level, message):
@@ -321,3 +425,15 @@ def trigger_render_datasheet_action(github_token):
         # print(f"JSON PAYLOAD {data}")
     else:
         print(f"POST to trigger Render Datasheet Action failed with status code: {response.status_code}")
+
+
+def line_exists(file_path, target_line):
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                if line.strip() == target_line.strip():
+                    return True  # The line already exists in the file
+        return False  # The line does not exist in the file
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return False
