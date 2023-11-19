@@ -185,32 +185,26 @@ class QuotesSpider(CrawlSpider):
             # self.datasheets_errors.append("DATASHEET NOT WORKING: "+response.url)
 
        # Product page basic info
-        # for web_item_tutorial in response.css('div.tutorial-module--heroWrapper--b7766'): # It takes the relative links from docs.arduino.org
-        # print(response.css('div.tutorial-module--left--f2811'))
-        # print(response.xpath('//*[@id="layout"]/div/div[1]').get())
-        # print(response.css('h5::text').getall())
-        # yield {
-        #     'title': response.css('h1::text').get(),
-        #     'description': response.css('div.Toc-module--item--d9634.a').get(), # If the description includes additional tags (See Opta, won't work)
-        #     # 'description': response.xpath('//*[@id="layout"]/div/div[1]/div/ul/li[1]/div/text()').get(), # If the description includes additional tags (See Opta, won't work)
-        #     # 'product_url': response.url,
-        #     # 'tutorials': web_item_tutorial.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
-        #     # 'url_alive': web_item_tutorial.status,
-        #     # 'datasheet': web_item_tutorial.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get(),
-        #     # 'full-pinout': web_item_tutorial.xpath('//*[@id="resources"]/div/div/div[3]/div[2]/div/a/@href').getall(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
-        #     # 'troubleshooting': web_item_tutorial.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
-        # }
-        # //*[@id="layout"]/div/div[2]/div[2]/div[1]/div/h1
-        # <h1>Getting Started with AWS IoT Core</h1>
-        # //*[@id="layout"]/div/div[2]/div[2]/div[1]/div/div[2]
-        # //*[@id="layout"]/div/div[2]/div[2]/div[1]/div/div[2]
-        # //*[@id="layout"]/div/div[2]/div[2]/div[1]/div/div[2]
-        # <div class="tutorial-module--tutorial--05a8e">
-        # //*[@id="layout"]/div/div[1]
-        # class="Toc-module--item--d9634"
-        # Product page content tree
-        # <div class="Toc-module--toc--d6ec2" style="top: 0px;"><h5 id="ToCtitle">Getting Started with AWS IoT Core</h5><div class="Toc-module--scroller--4d4fd"><ul><li><div class="Toc-module--item--d9634"><a href="#overview">Overview</a></div></li><li><div class="Toc-module--item--d9634"><a href="#goals">Goals</a></div></li><li><div class="Toc-module--item--d9634"><a href="#hardware-and-software-requirements">Hardware and Software Requirements</a><div class="Toc-module--icon--06841"><svg width="1em" height="1em" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 17H8C7.73478 17 7.48043 16.8946 7.29289 16.7071C7.10536 16.5196 7 16.2652 7 16C7 15.7348 7.10536 15.4804 7.29289 15.2929C7.48043 15.1054 7.73478 15 8 15H24C24.2652 15 24.5196 15.1054 24.7071 15.2929C24.8946 15.4804 25 15.7348 25 16C25 16.2652 24.8946 16.5196 24.7071 16.7071C24.5196 16.8946 24.2652 17 24 17Z" fill="currentColor"></path></svg></div></div><ul><li><div class="Toc-module--item--d9634"><a href="#hardware-requirements" class="Toc-module--active--b3e43">Hardware Requirements</a></div></li><li><div class="Toc-module--item--d9634"><a href="#software-requirements">Software Requirements</a></div></li></ul></li><li><div class="Toc-module--item--d9634"><a href="#aws-iot-core">AWS IoT Core</a><div class="Toc-module--icon--06841"><svg width="1em" height="1em" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 17H8C7.73478 17 7.48043 16.8946 7.29289 16.7071C7.10536 16.5196 7 16.2652 7 16C7 15.7348 7.10536 15.4804 7.29289 15.2929C7.48043 15.1054 7.73478 15 8 15H24C24.2652 15 24.5196 15.1054 24.7071 15.2929C24.8946 15.4804 25 15.7348 25 16C25 16.2652 24.8946 16.5196 24.7071 16.7071C24.5196 16.8946 24.2652 17 24 17Z" fill="currentColor"></path></svg></div></div><ul><li><div class="Toc-module--item--d9634"><a href="#x509-certificates">X.509 Certificates</a></div></li></ul></li><li><div class="Toc-module--item--d9634"><a href="#instructions">Instructions</a><div class="Toc-module--icon--06841"><svg width="1em" height="1em" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 17H8C7.73478 17 7.48043 16.8946 7.29289 16.7071C7.10536 16.5196 7 16.2652 7 16C7 15.7348 7.10536 15.4804 7.29289 15.2929C7.48043 15.1054 7.73478 15 8 15H24C24.2652 15 24.5196 15.1054 24.7071 15.2929C24.8946 15.4804 25 15.7348 25 16C25 16.2652 24.8946 16.5196 24.7071 16.7071C24.5196 16.8946 24.2652 17 24 17Z" fill="currentColor"></path></svg></div></div><ul><li><div class="Toc-module--item--d9634"><a href="#setting-up-the-arduino-ide">Setting Up the Arduino IDE</a></div></li><li><div class="Toc-module--item--d9634"><a href="#setting-up-your-aws-account">Setting Up Your AWS Account</a></div></li><li><div class="Toc-module--item--d9634"><a href="#generating-a-certificate-signing-request">Generating a Certificate Signing Request</a></div></li><li><div class="Toc-module--item--d9634"><a href="#creating-resources-in-aws-iot-core">Creating Resources in AWS IoT Core</a><div class="Toc-module--icon--06841"><svg width="1em" height="1em" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 17H8C7.73478 17 7.48043 16.8946 7.29289 16.7071C7.10536 16.5196 7 16.2652 7 16C7 15.7348 7.10536 15.4804 7.29289 15.2929C7.48043 15.1054 7.73478 15 8 15H24C24.2652 15 24.5196 15.1054 24.7071 15.2929C24.8946 15.4804 25 15.7348 25 16C25 16.2652 24.8946 16.5196 24.7071 16.7071C24.5196 16.8946 24.2652 17 24 17Z" fill="currentColor"></path></svg></div></div><ul><li><div class="Toc-module--item--d9634"><a href="#opta-configuration-as-a-resource">Opta™ Configuration as a Resource</a></div></li></ul></li><li><div class="Toc-module--item--d9634"><a href="#provisioning-your-device">Provisioning Your Device</a></div></li><li><div class="Toc-module--item--d9634"><a href="#connecting-your-device-to-aws-iot-core">Connecting Your Device To AWS IoT Core</a></div></li><li><div class="Toc-module--item--d9634"><a href="#uploading-the-example-sketch">Uploading the Example Sketch</a></div></li><li><div class="Toc-module--item--d9634"><a href="#testing-the-example-sketch">Testing the Example Sketch</a></div></li></ul></li><li><div class="Toc-module--item--d9634"><a href="#troubleshooting">Troubleshooting</a></div></li></ul></div></div>
-
+        for web_item_tutorial in response.css('div.tutorial-module--left--f2811'): # It takes the relative links from docs.arduino.org
+            # print(response.css('div.tutorial-module--left--f2811'))
+            # print(response.xpath('//*[@id="layout"]/div/div[1]').get())
+            # print(response.css('h5::text').getall())
+            yield {
+                'title': web_item_tutorial.css('h1::text').get(),
+                'tutorial_url': response.url,
+                'description': web_item_tutorial.xpath('//h1/following-sibling::div[1]/text()').get(),
+                'author': web_item_tutorial.css('div.tutorial-module--metadata--b16ef.tutorial-module--author--c9a7a::text').get(), # FIXME Not working
+                'sections': web_item_tutorial.css('h2::text').getall(),
+                'url_alive': response.status,
+                # 'description': response.xpath('//*[@id="layout"]/div/div[1]/div/ul/li[1]/div/text()').get(), # If the description includes additional tags (See Opta, won't work)
+                # 'product_url': response.url,
+                # 'tutorials': web_item_tutorial.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
+                # 'url_alive': web_item_tutorial.status,
+                # 'datasheet': web_item_tutorial.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get(),
+                # 'full-pinout': web_item_tutorial.xpath('//*[@id="resources"]/div/div/div[3]/div[2]/div/a/@href').getall(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
+                # 'troubleshooting': web_item_tutorial.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
+            }
+        #  tutorial-module--metadata--b16ef   
         # for web_item in response.css('div.tutorial-module--left--f2811'): # It takes the relative links from docs.arduino.org
         #     print(web_item.xpath('/html/body/div[3]/div[1]/div/div/div[2]/div[2]/div[1]/div/h1/text()'))
         #     # print(web_item.css('h1.name::text').get())
@@ -228,7 +222,9 @@ class QuotesSpider(CrawlSpider):
         #         next_page = web_item.xpath('a/@href').getall()
         #         print(next_page)
         #         # //*[@id="___gatsby"]
-        pass
+        # //*[@id="overview"]
+        # //*[@id="layout"]/div/div[2]/div[2]/div[1]/div/div[3]/div
+        # //*[@id="layout"]/div/div[2]/div[2]/div[1]/div/div[3]/div/span
 
     def closed(self, reason):
         # Final report
