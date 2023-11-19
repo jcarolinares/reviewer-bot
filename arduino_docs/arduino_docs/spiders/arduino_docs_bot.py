@@ -64,6 +64,9 @@ class QuotesSpider(CrawlSpider):
     product_pages_errors = []
     datasheets_errors = []
     datasheets_warnings = []
+    tutorial_ext_urls_errors = []
+
+    ignore_url_list = ["https://unicode.org/emoji/charts/full-emoji-list.html"]
 
     def start_requests(self):
         urls = [
@@ -196,6 +199,7 @@ class QuotesSpider(CrawlSpider):
                 'author': web_item_tutorial.css('div.tutorial-module--metadata--b16ef.tutorial-module--author--c9a7a::text').get(), # FIXME Not working
                 'sections': web_item_tutorial.css('h2::text').getall(),
                 'url_alive': response.status,
+                'urls': web_item_tutorial.css('a::attr(href)').extract(), #.getall()
                 # 'description': response.xpath('//*[@id="layout"]/div/div[1]/div/ul/li[1]/div/text()').get(), # If the description includes additional tags (See Opta, won't work)
                 # 'product_url': response.url,
                 # 'tutorials': web_item_tutorial.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
@@ -204,27 +208,25 @@ class QuotesSpider(CrawlSpider):
                 # 'full-pinout': web_item_tutorial.xpath('//*[@id="resources"]/div/div/div[3]/div[2]/div/a/@href').getall(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
                 # 'troubleshooting': web_item_tutorial.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
             }
-        #  tutorial-module--metadata--b16ef   
-        # for web_item in response.css('div.tutorial-module--left--f2811'): # It takes the relative links from docs.arduino.org
-        #     print(web_item.xpath('/html/body/div[3]/div[1]/div/div/div[2]/div[2]/div[1]/div/h1/text()'))
-        #     # print(web_item.css('h1.name::text').get())
-        #     # /html/body/div[3]/div[1]/div/div/div[2]/div[2]/div[1]/div/h1
-        #     # //*[@id="layout"]/div/div[2]/div[2]/div[1]/div/h1
-        #     yield {
-        #         'title': web_item.css('h1.name::text').get(),
-        #     }
 
-        #    # Extracting all the links
-        #     for web_item in response.xpath('//*[@id="___gatsby"]'): # It takes the relative links from docs.arduino.org
-        #         print("TEST")
-        #         print(web_item.xpath('a/@href').getall())
-        #         # Next group of URLs to go
-        #         next_page = web_item.xpath('a/@href').getall()
-        #         print(next_page)
-        #         # //*[@id="___gatsby"]
-        # //*[@id="overview"]
-        # //*[@id="layout"]/div/div[2]/div[2]/div[1]/div/div[3]/div
-        # //*[@id="layout"]/div/div[2]/div[2]/div[1]/div/div[3]/div/span
+            # # URLs check # FIXME problematic - Need to improve to not do too much request to the same URLs and servers
+            # tutorial_urls = web_item_tutorial.css('a::attr(href)').extract()
+            # for url in tutorial_urls:
+            #     for ignore_url in self.ignore_url_list:
+            #         if url == ignore_url:
+            #             log_print("warn", f"Ignoring URL: {url}")
+            #             break
+            #         else:
+            #             if "http" in url:
+            #                 try:
+            #                     log_print("info", f"Checking: {url}")
+            #                     if requests.get(url, timeout = (10, 30)).status_code!=200:
+            #                         log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+            #                         self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+            #                 except requests.exceptions.Timeout:
+            #                     log_print("error",'The request timed out')
+            #                     log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+            #                     self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
 
     def closed(self, reason):
         # Final report
@@ -265,6 +267,19 @@ class QuotesSpider(CrawlSpider):
             # trigger_ifttt_event("docs_arduino_datasheet_error",ifttt_key,aux_string)
         else:
             log_print("info", "NO DATASHEET ERRORS FOUND")
+
+        # Tutorials external url references overview report
+        print("\n")
+        if (len(self.tutorial_ext_urls_errors)!=0):
+            aux_string = "TUTORIAL EXT URLS TO CHECK: "
+            log_print("critical", "TUTORIAL EXT URLS ERRORS OVERVIEW")
+            for item in self.tutorial_ext_urls_errors:
+                log_print("error",item)
+            # trigger_ifttt_event("docs_arduino_datasheet_error",ifttt_key,aux_string)
+            # log_print("info","RENDER DATASHEETS ON DOCS ARDUINO TO SOLVE ISSUES")
+            # trigger_render_datasheet_action(github_key)
+        else:
+            log_print("info", "NO TUTORIALS EXT URLS ERRORS FOUND")
 
 
 def log_print(message_level, message):
