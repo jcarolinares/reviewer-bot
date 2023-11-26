@@ -218,6 +218,8 @@ class QuotesSpider(CrawlSpider):
             f_404 = open("404_tutorials_ext_urls.txt", mode='w')
             f_404.close()
 
+            s = requests.Session()  # It creates a session to speed up the downloads
+
             with open("tutorials_ext_urls.txt", mode='a') as f:
                 for url in unique_urls:
                     if "/static/" in url: # To avoid adding static resources like images
@@ -246,7 +248,8 @@ class QuotesSpider(CrawlSpider):
                                 if "http" in url:
                                     try:
                                         log_print("info", f"Checking: {url}")
-                                        if requests.get(url, timeout = (10, 30)).status_code!=200:
+                                        r = s.get(url, timeout = (10, 30)) # Check the link
+                                        if r.status_code!=200:
                                             log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
                                             self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
                                             with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
@@ -268,43 +271,6 @@ class QuotesSpider(CrawlSpider):
                                             f_404.close()
             f.close()
 
-
-            # # External Tutorial URLs file cleaning with no duplicates
-            # # Input file with duplicate lines
-            # input_file_path = "tutorials_ext_urls.txt"
-
-            # # Output file to store unique lines
-            # output_file_path = "tutorials_ext_urls.txt"
-
-            # # Read lines from the input file
-            # with open(input_file_path, 'r') as input_file:
-            #     lines = input_file.readlines()
-
-            # # Use a set to eliminate duplicate lines
-            # unique_lines = set(lines)
-
-            # # Write the unique lines to the output file
-            # with open(output_file_path, 'w') as output_file:
-            #     output_file.writelines(unique_lines)
-
-            # # URLs check # FIXME problematic - Need to improve to not do too much request to the same URLs and servers
-            # tutorial_urls = web_item_tutorial.css('a::attr(href)').extract()
-            # for url in tutorial_urls:
-            #     for ignore_url in self.ignore_url_list:
-            #         if url == ignore_url:
-            #             log_print("warn", f"Ignoring URL: {url}")
-            #             break
-            #         else:
-            #             if "http" in url:
-            #                 try:
-            #                     log_print("info", f"Checking: {url}")
-            #                     if requests.get(url, timeout = (10, 30)).status_code!=200:
-            #                         log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
-            #                         self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
-            #                 except requests.exceptions.Timeout:
-            #                     log_print("error",'The request timed out')
-            #                     log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
-            #                     self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
 
     def closed(self, reason):
         # Final report
