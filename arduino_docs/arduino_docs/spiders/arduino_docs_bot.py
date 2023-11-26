@@ -215,8 +215,8 @@ class QuotesSpider(CrawlSpider):
             # Use a set to eliminate duplicates
             unique_urls = list(set(tutorial_urls))
 
-            # f_404 = open("404_tutorials_ext_urls.txt", mode='w')
-            # f_404.close()
+            f_404 = open("404_tutorials_ext_urls.txt", mode='w')
+            f_404.close()
 
             with open("tutorials_ext_urls.txt", mode='a') as f:
                 for url in unique_urls:
@@ -228,8 +228,8 @@ class QuotesSpider(CrawlSpider):
                         if line_exists("404_tutorials_ext_urls.txt", url):
                             log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
                             self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
-                            with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                f_404.write(url+"\n")
+                            with open(path_w, mode='a') as f_404:
+                                f_404.write(url)
                                 f_404.close()
                         continue
                     else:
@@ -250,21 +250,21 @@ class QuotesSpider(CrawlSpider):
                                             log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
                                             self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
                                             with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                                f_404.write(url+"\n")
+                                                f_404.write(url)
                                                 f_404.close()
                                     except requests.exceptions.ConnectionError:
                                         log_print("error",'Network connection error')
                                         log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
                                         self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
                                         with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                            f_404.write(url+"\n")
+                                            f_404.write(url)
                                             f_404.close()
                                     except requests.exceptions.Timeout:
                                         log_print("error",'The request timed out')
                                         log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
                                         self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
                                         with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                            f_404.write(url+"\n")
+                                            f_404.write(url)
                                             f_404.close()
             f.close()
 
@@ -356,13 +356,34 @@ class QuotesSpider(CrawlSpider):
 
             with open("tutorial_broken_ext_links.txt", 'w') as output_file:
                 for line in self.tutorial_ext_urls_errors:
-                    output_file.write(line+"\n")
+                    output_file.write(line)
                 output_file.close()
             # trigger_ifttt_event("docs_arduino_datasheet_error",ifttt_key,aux_string)
             # log_print("info","RENDER DATASHEETS ON DOCS ARDUINO TO SOLVE ISSUES")
             # trigger_render_datasheet_action(github_key)
         else:
             log_print("info", "NO TUTORIALS EXT URLS ERRORS FOUND")
+
+
+            # # External Tutorial URLs file cleaning with no duplicates
+            # # Input file with duplicate lines
+            # input_file_path = "tutorials_ext_urls.txt"
+
+            # # Output file to store unique lines
+            # output_file_path = "tutorials_ext_urls.txt"
+
+            # # Read lines from the input file
+            # with open(input_file_path, 'r') as input_file:
+            #     lines = input_file.readlines()
+
+            # # Use a set to eliminate duplicate lines
+            # unique_lines = set(lines)
+
+            # # Write the unique lines to the output file
+            # with open(output_file_path, 'w') as output_file:
+            #     output_file.writelines(unique_lines)
+
+
 
 
 def log_print(message_level, message):
