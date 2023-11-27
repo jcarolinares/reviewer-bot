@@ -322,7 +322,7 @@ class QuotesSpider(CrawlSpider):
 
             with open("tutorial_broken_ext_links.txt", 'w') as output_file:
                 for line in self.tutorial_ext_urls_errors:
-                    output_file.write(line)
+                    output_file.write(line+"\n")
                 output_file.close()
             # trigger_ifttt_event("docs_arduino_datasheet_error",ifttt_key,aux_string)
             # log_print("info","RENDER DATASHEETS ON DOCS ARDUINO TO SOLVE ISSUES")
