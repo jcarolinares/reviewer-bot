@@ -215,7 +215,7 @@ class QuotesSpider(CrawlSpider):
             # Use a set to eliminate duplicates
             unique_urls = list(set(tutorial_urls))
 
-            f_404 = open("404_tutorials_ext_urls.txt", mode='w')
+            f_404 = open("404_tutorials_ext_urls.txt", mode='a')
             f_404.close()
 
             s = requests.Session()  # It creates a session to speed up the downloads
@@ -225,14 +225,11 @@ class QuotesSpider(CrawlSpider):
                     if "/static/" in url: # To avoid adding static resources like images
                         log_print("info", f"Static resource ignored: {url}")
                         continue
-                    elif line_exists("tutorials_ext_urls.txt", url): # To avoid adding duplicates
+                    elif line_exists("tutorials_ext_urls.txt", url): # To avoid checking duplicates
                         log_print("info", f"Link duplicated - Ignoring: {url}")
                         if line_exists("404_tutorials_ext_urls.txt", url):
-                            log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+                            log_print("error", f"URL BROKEN ALREADY CHECKED -> Tutorial: {response.url} Link: {url}")
                             self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
-                            with open(path_w, mode='a') as f_404:
-                                f_404.write(url)
-                                f_404.close()
                         continue
                     else:
                         new_link = ""
@@ -250,24 +247,24 @@ class QuotesSpider(CrawlSpider):
                                         log_print("info", f"Checking: {url}")
                                         r = s.get(url, timeout = (10, 30)) # Check the link
                                         if r.status_code!=200:
-                                            log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
-                                            self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+                                            log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url} Status: {r.status_code}")
+                                            self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url} Status: {r.status_code}")
                                             with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                                f_404.write(url)
+                                                f_404.write(url+"\n")
                                                 f_404.close()
                                     except requests.exceptions.ConnectionError:
                                         log_print("error",'Network connection error')
-                                        log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
-                                        self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+                                        log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url} Status: {r.status_code}")
+                                        self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url} Status: {r.status_code}")
                                         with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                            f_404.write(url)
+                                            f_404.write(url+"\n")
                                             f_404.close()
                                     except requests.exceptions.Timeout:
                                         log_print("error",'The request timed out')
-                                        log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
-                                        self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+                                        log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url} Status: {r.status_code}")
+                                        self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url} Status: {r.status_code}")
                                         with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                            f_404.write(url)
+                                            f_404.write(url+"\n")
                                             f_404.close()
             f.close()
 
