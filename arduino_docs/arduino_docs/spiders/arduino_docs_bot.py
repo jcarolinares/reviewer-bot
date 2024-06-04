@@ -56,6 +56,7 @@ class QuotesSpider(CrawlSpider):
     name = "arduino_bot"
     allowed_domains = ['docs.arduino.cc']
     handle_httpstatus_list = [404] # To handle 404 requests
+    number_categories = 10
 
     # Not spider variables
     total_products = 0
@@ -70,7 +71,7 @@ class QuotesSpider(CrawlSpider):
 
     def start_requests(self):
         urls = [
-            'https://docs.arduino.cc/',
+            'https://docs.arduino.cc/hardware/',
         ]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse_home)
@@ -78,23 +79,74 @@ class QuotesSpider(CrawlSpider):
     def parse_home(self, response):
         log_print("info","HOME PARSER")
 
+        # FIXME None of these methods are worth with the actual webpage being dynamic, the effort in development will be big and in maintenance too. 
+        # TODO It is better to be practical so create a manual list of products with the permalinks
+
+        # sidebar_info = response.css('div.sidebar > div.sidebar__first-level')
+        # log_print("info", str(sidebar_info))
+
+        # page_urls = sidebar_info.css('a::attr(href)').getall() # This onlt gets the "visible ones"
+
+
+        # # page_urls = response.css('a::attr(href)').getall() # This onlt gets the "visible ones"
+        # for url in page_urls:
+        #     log_print("info", str(url))
+        
+        # #layout > main > div.sidebar > div.sidebar__first-level
+
+
         # Extracting all the links
-        for web_item in response.css('div.index-module--product_container--187dc'): # It takes the relative links from docs.arduino.org
+        # Selector #layout > main > div.sidebar > div.sidebar__first-level > div > button.sidebar__categories.accordion > div.sidebar__main-category.sidebar__main-category--opened > div.sidebar__container > h5
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div > div.sidebar__container > h5
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(2) > div > div.sidebar__container > h5
+        # debug_string = response.css('div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div > div.sidebar__container > h5::text').get()
+        # log_print("error", str(debug_string))
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div > div.sidebar__container > h5
 
-            # # FIXME Using this yield is problematic for the CSV export
-            # yield {
-            #     'family_links': web_item.xpath('a/@href').getall(),
-            # }
 
-            # Next group of URLs to go
-            next_page = web_item.xpath('a/@href').getall()
+        # Parsing the navigation bar categories to get each product link
+        # for i in range(self.number_categories):
+        #     log_print("error", str(i))            
+        #     # web_item = response.css(f'div.sidebar > div.sidebar__first-level > div > button:nth-child({i}) > div > div.sidebar__container > h5')
+        #     web_item = response.css(f'div.sidebar > div.sidebar__first-level > div.sidebar__navigation >  button:nth-child(1) > div:nth-child(2) > div.sidebar__links') # Should work but is not
+        #     log_print("error", (web_item))
+            # links_containers = web_item.xpath('/div[2]/div[2]').getall()
+            # log_print("error", str(links_containers))
+            # <div class="sidebar__main-category sidebar__main-category--opened"><div class="sidebar__container"><h5>MKR Family</h5></div><div class="sidebar__main-category--icon"><svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform:rotate(270deg)"><g id="Icon"><path id="Vector" d="M5.00012 5.12463C4.91786 5.1251 4.83632 5.10934 4.76017 5.07824C4.68403 5.04713 4.61477 5.0013 4.55637 4.94338L0.806366 1.19338C0.688676 1.07569 0.622559 0.916066 0.622559 0.749627C0.622559 0.583189 0.688676 0.423567 0.806366 0.305877C0.924055 0.188188 1.08368 0.12207 1.25012 0.12207C1.41655 0.12207 1.57618 0.188188 1.69387 0.305877L5.00012 3.61838L8.30637 0.305877C8.42406 0.188188 8.58368 0.12207 8.75012 0.12207C8.91656 0.12207 9.07618 0.188188 9.19387 0.305877C9.31156 0.423567 9.37767 0.583189 9.37767 0.749627C9.37767 0.916066 9.31156 1.07569 9.19387 1.19338L5.44387 4.94338C5.38547 5.0013 5.31621 5.04713 5.24006 5.07824C5.16391 5.10934 5.08237 5.1251 5.00012 5.12463Z" fill="#7F8C8D"></path></g></svg></div></div>
 
-            for new_page in next_page:
-                if next_page is not None:
-                    new_page = response.urljoin(new_page)  #+"2" # used to corrupt urls to test 404
-                    log_print("info","New page: "+new_page)
-                    yield scrapy.Request(new_page, callback=self.parse_product_page)
+        #     # next_page = web_item.xpath('a/@href').getall()
+        #     # log_print("error", str(next_page))
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div:nth-child(2) > div.sidebar__links
 
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div:nth-child(2)
+
+
+
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button.sidebar__categories.accordion > div.sidebar__main-category.sidebar__main-category--opened > div.sidebar__container > h5
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div.sidebar__main-category.sidebar__main-category--opened > div.sidebar__container > h5
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div:nth-child(2) > div.sidebar__links
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div:nth-child(2) > div.sidebar__links
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div:nth-child(2)
+        #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div.sidebar__main-category.sidebar__main-category--opened
+       #layout > main > div.sidebar > div.sidebar__first-level > div > button:nth-child(1) > div:nth-child(2)
+        # for web_item in response.css(f'div.sidebar > div.sidebar__first-level > div > button:nth-child({number_categories-1}) > div > div.sidebar__container > h5'):
+        #     log_print("error", str(web_item))
+
+        # for web_item in response.css('div.sidebar > div.sidebar__first-level > div > button.sidebar__categories.accordion > div.sidebar__main-category.sidebar__main-category--opened > div.sidebar__container > h5::text').get(): # It takes the relative links from docs.arduino.org
+        #     # # FIXME Using this yield is problematic for the CSV export
+        #     # yield {
+        #     #     'family_links': web_item.xpath('a/@href').getall(),
+        #     # }
+        #     log_print("info", "HARDWARE containers debug: "+str(web_item))
+
+        #     # Next group of URLs to go
+        #     next_page = web_item.xpath('a/@href').getall()
+
+        #     for new_page in next_page:
+        #         if next_page is not None:
+        #             new_page = response.urljoin(new_page)  #+"2" # used to corrupt urls to test 404
+        #             log_print("info","New page: "+new_page)
+        #             yield scrapy.Request(new_page, callback=self.parse_product_page)
 
     def parse_product_page(self, response):
         print("\n")
