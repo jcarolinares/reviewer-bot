@@ -34,17 +34,17 @@ config_file = "api_credentials.ini"
 config = configparser.ConfigParser()
 config.read(config_file)
 
-if (config.get("IFTTWebhook", "api_token") == "<IFTTT_WEBHOOK>"):
-    print("ERROR-YOU HAVE TO PUT YOUR <IFTTT_WEBHOOK> API TOKEN AT: api_credentials.ini")
-    sys.exit()
-else:
-    ifttt_key = config.get("IFTTWebhook", "api_token")
+# if (config.get("IFTTWebhook", "api_token") == "<IFTTT_WEBHOOK>"):
+#     print("ERROR-YOU HAVE TO PUT YOUR <IFTTT_WEBHOOK> API TOKEN AT: api_credentials.ini")
+#     sys.exit()
+# else:
+#     ifttt_key = config.get("IFTTWebhook", "api_token")
 
-if (config.get("GithubAPI", "api_token") == "<GITHUB_TOKEN>"):
-    print("ERROR-YOU HAVE TO PUT YOUR <GITHUB_TOKEN> API TOKEN AT: api_credentials.ini")
-    sys.exit()
-else:
-    github_key = config.get("GithubAPI", "api_token")
+# if (config.get("GithubAPI", "api_token") == "<GITHUB_TOKEN>"):
+#     print("ERROR-YOU HAVE TO PUT YOUR <GITHUB_TOKEN> API TOKEN AT: api_credentials.ini")
+#     sys.exit()
+# else:
+#     github_key = config.get("GithubAPI", "api_token")
 
 
 
@@ -69,18 +69,65 @@ class QuotesSpider(CrawlSpider):
     ignore_url_list = ["https://unicode.org/emoji/charts/full-emoji-list.html"]
 
     def start_requests(self):
-        urls = [
-            'https://docs.arduino.cc/',
+        # urls = [
+        #     'https://docs.arduino.cc/hardware/',
+        # ]
+        # for url in urls:
+        #     print("test")
+        #     print(url)
+        #     yield scrapy.Request(url=url, callback=self.parse_home)
+        urls = [ # TODO change it to a file ? # FIXME here we have missing pages because page is dymanic
+            "https://docs.arduino.cc/hardware/mkr-1000-wifi",
+            "https://docs.arduino.cc/hardware/mkr-fox-1200",
+            "https://docs.arduino.cc/hardware/mkr-gsm-1400",
+            "https://docs.arduino.cc/hardware/mkr-nb-1500",
+            "https://docs.arduino.cc/hardware/mkr-vidor-4000",
+            "https://docs.arduino.cc/hardware/mkr-wan-1300",
+            "https://docs.arduino.cc/hardware/mkr-wan-1310",
+            "https://docs.arduino.cc/hardware/mkr-wifi-1010",
+            "https://docs.arduino.cc/hardware/mkr-zero",
+            "https://docs.arduino.cc/hardware/mkr-485-shield",
+            "https://docs.arduino.cc/hardware/mkr-can-shield",
+            "https://docs.arduino.cc/hardware/mkr-env-shield",
+            "https://docs.arduino.cc/hardware/mkr-eth-shield",
+            "https://docs.arduino.cc/hardware/mkr-gps-shield",
+            "https://docs.arduino.cc/hardware/mkr-imu-shield",
+            "https://docs.arduino.cc/hardware/mkr-mem-shield",
+            "https://docs.arduino.cc/hardware/mkr-relay-shield",
+            "https://docs.arduino.cc/hardware/mkr-rgb-shield",
+            "https://docs.arduino.cc/hardware/mkr-sd-proto-shield",
+            "https://docs.arduino.cc/hardware/mkr-therm-shield",
+            "https://docs.arduino.cc/hardware/mkr-connector-carrier",
+            "https://docs.arduino.cc/hardware/mkr-iot-carrier",
+            "https://docs.arduino.cc/hardware/mkr-iot-carrier-rev2",
+            "https://docs.arduino.cc/hardware/mkr-motor-carrier",
+            "https://docs.arduino.cc/hardware/portenta-c33",
+            "https://docs.arduino.cc/hardware/portenta-h7",
+            "https://docs.arduino.cc/hardware/portenta-h7-lite",
+            "https://docs.arduino.cc/hardware/portenta-h7-lite-connected",
+            "https://docs.arduino.cc/hardware/portenta-x8",
+            "https://docs.arduino.cc/hardware/portenta-breakout",
+            "https://docs.arduino.cc/hardware/portenta-hat-carrier",
+            "https://docs.arduino.cc/hardware/portenta-max-carrier",
+            "https://docs.arduino.cc/hardware/portenta-mid-carrier",
+            "https://docs.arduino.cc/hardware/pro-4g-module",
+            "https://docs.arduino.cc/hardware/portenta-cat-m1-nb-iot-gnss-shield",
+            "https://docs.arduino.cc/hardware/portenta-mid-carrier-proto-shield",
+            "https://docs.arduino.cc/hardware/portenta-vision-shield",
+            "https://docs.arduino.cc/hardware/uno-r4-wifi",
+            "https://docs.arduino.cc/hardware/leonardo",
         ]
         for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse_home)
+            print("test")
+            print(url)
+            yield scrapy.Request(url=url, callback=self.parse_product_page)
 
     def parse_home(self, response):
         log_print("info","HOME PARSER")
 
         # Extracting all the links
-        for web_item in response.css('div.index-module--product_container--187dc'): # It takes the relative links from docs.arduino.org
-
+        for web_item in response.css('div.index-module--product_container--187dc'): # It takes the relative links from docs.arduino.cc
+            print(f"\n\nTEST {web_item}")
             # # FIXME Using this yield is problematic for the CSV export
             # yield {
             #     'family_links': web_item.xpath('a/@href').getall(),
@@ -88,7 +135,7 @@ class QuotesSpider(CrawlSpider):
 
             # Next group of URLs to go
             next_page = web_item.xpath('a/@href').getall()
-
+            print(next_page)
             for new_page in next_page:
                 if next_page is not None:
                     new_page = response.urljoin(new_page)  #+"2" # used to corrupt urls to test 404
@@ -108,16 +155,23 @@ class QuotesSpider(CrawlSpider):
         self.total_products = self.total_products +1
 
        # Product page basic info
-        for web_item in response.css('div.ProductHeader-module--titleContainer--33ed0'): # It takes the relative links from docs.arduino.org
+        # for web_item in response.css('div.ProductHeader-module--titleContainer--33ed0'): # It takes the relative links from docs.arduino.org
+        for web_item in response.xpath('//*[@id="layout"]/main/div[2]/div[1]'): # It takes the relative links from docs.arduino.org
+            # //*[@id="layout"]/main/div[2]/div[1]
+
+            log_print("info","inside web item")
             yield {
-                'title': web_item.css('h1.name::text').get(),
-                'description': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[1]/p/text()').get(), # If the description includes additional tags (See Opta, won't work)
+                # 'title': web_item.css('div.product-header__title--text.h1::text').get(),
+                'title': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/section/div[1]/div[1]/div/h1/text()').get(),
+                'description': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/section/div[1]/div[2]/div[1]/p/text()').get(), # If the description includes additional tags (See Opta, won't work)
                 'product_url': response.url,
-                'tutorials': response.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
+                'store_url': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/section/div[2]/div/div[3]/a[contains(@href, "store")]/@href').get(),
+                'tutorials': response.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(), # FIXME new tutorials tab, will need a subsection
                 'url_alive': response.status,
-                'datasheet': web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get(),
-                'full-pinout': web_item.xpath('//*[@id="resources"]/div/div/div[3]/div[2]/div/a/@href').getall(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
-                'troubleshooting': web_item.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
+                'full-pinout': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "full-pinout")]/@href').get(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
+                'datasheet': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "datasheets")]/@href').get(),
+                'schematics': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "schematics")]/@href').get(),
+                'cad-files': "https://docs.arduino.cc"+web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "cad-files")]/@href').get()
             }
             # FIXME Portenta Machine Control datasheet xpath: "//*[@id="overview"]/div/div[1]/div[2]/div[2]/a" FIXED WITH '//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href'
             # //a[contains(text(), 'programming')]/@href
@@ -127,7 +181,9 @@ class QuotesSpider(CrawlSpider):
             # TODO call here parse_product_page_soup() function to extract and add more information
 
             # Datasheets scrapping
-            next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get()
+            # next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get()
+            log_print("info", "DATASHEET PARSER")
+            next_datasheet = web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "datasheets")]/@href').get()
             if next_datasheet is not None:
                 log_print("info","NEXT DATASHEET "+str(next_datasheet))
 
@@ -138,7 +194,7 @@ class QuotesSpider(CrawlSpider):
                 log_print("warn","DATASHEET NOT PRESENT")
                 self.datasheets_warnings.append("DATASHEET NOT PRESENT: "+response.url)
 
-            # Tutorial Scrapping
+            # Tutorial Scrapping # FIXME docs 2.0 uses another approach
             tutorials_list = response.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall()
 
             # Tutorials list print
