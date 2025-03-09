@@ -76,49 +76,51 @@ class QuotesSpider(CrawlSpider):
         #     print("test")
         #     print(url)
         #     yield scrapy.Request(url=url, callback=self.parse_home)
+        # urls = [ # TODO change it to a file ? # FIXME here we have missing pages because page is dymanic
+        #     "https://docs.arduino.cc/hardware/mkr-1000-wifi",
+        #     "https://docs.arduino.cc/hardware/mkr-fox-1200",
+        #     "https://docs.arduino.cc/hardware/mkr-gsm-1400",
+        #     "https://docs.arduino.cc/hardware/mkr-nb-1500",
+        #     "https://docs.arduino.cc/hardware/mkr-vidor-4000",
+        #     "https://docs.arduino.cc/hardware/mkr-wan-1300",
+        #     "https://docs.arduino.cc/hardware/mkr-wan-1310",
+        #     "https://docs.arduino.cc/hardware/mkr-wifi-1010",
+        #     "https://docs.arduino.cc/hardware/mkr-zero",
+        #     "https://docs.arduino.cc/hardware/mkr-485-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-can-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-env-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-eth-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-gps-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-imu-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-mem-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-relay-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-rgb-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-sd-proto-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-therm-shield",
+        #     "https://docs.arduino.cc/hardware/mkr-connector-carrier",
+        #     "https://docs.arduino.cc/hardware/mkr-iot-carrier",
+        #     "https://docs.arduino.cc/hardware/mkr-iot-carrier-rev2",
+        #     "https://docs.arduino.cc/hardware/mkr-motor-carrier",
+        #     "https://docs.arduino.cc/hardware/portenta-c33",
+        #     "https://docs.arduino.cc/hardware/portenta-h7",
+        #     "https://docs.arduino.cc/hardware/portenta-h7-lite",
+        #     "https://docs.arduino.cc/hardware/portenta-h7-lite-connected",
+        #     "https://docs.arduino.cc/hardware/portenta-x8",
+        #     "https://docs.arduino.cc/hardware/portenta-breakout",
+        #     "https://docs.arduino.cc/hardware/portenta-hat-carrier",
+        #     "https://docs.arduino.cc/hardware/portenta-max-carrier",
+        #     "https://docs.arduino.cc/hardware/portenta-mid-carrier",
+        #     "https://docs.arduino.cc/hardware/pro-4g-module",
+        #     "https://docs.arduino.cc/hardware/portenta-cat-m1-nb-iot-gnss-shield",
+        #     "https://docs.arduino.cc/hardware/portenta-mid-carrier-proto-shield",
+        #     "https://docs.arduino.cc/hardware/portenta-vision-shield",
+        #     "https://docs.arduino.cc/hardware/uno-r4-wifi",
+        #     "https://docs.arduino.cc/hardware/leonardo",
+        # ]
         urls = [ # TODO change it to a file ? # FIXME here we have missing pages because page is dymanic
-            "https://docs.arduino.cc/hardware/mkr-1000-wifi",
-            "https://docs.arduino.cc/hardware/mkr-fox-1200",
-            "https://docs.arduino.cc/hardware/mkr-gsm-1400",
-            "https://docs.arduino.cc/hardware/mkr-nb-1500",
-            "https://docs.arduino.cc/hardware/mkr-vidor-4000",
-            "https://docs.arduino.cc/hardware/mkr-wan-1300",
-            "https://docs.arduino.cc/hardware/mkr-wan-1310",
-            "https://docs.arduino.cc/hardware/mkr-wifi-1010",
-            "https://docs.arduino.cc/hardware/mkr-zero",
-            "https://docs.arduino.cc/hardware/mkr-485-shield",
-            "https://docs.arduino.cc/hardware/mkr-can-shield",
-            "https://docs.arduino.cc/hardware/mkr-env-shield",
-            "https://docs.arduino.cc/hardware/mkr-eth-shield",
-            "https://docs.arduino.cc/hardware/mkr-gps-shield",
-            "https://docs.arduino.cc/hardware/mkr-imu-shield",
-            "https://docs.arduino.cc/hardware/mkr-mem-shield",
-            "https://docs.arduino.cc/hardware/mkr-relay-shield",
-            "https://docs.arduino.cc/hardware/mkr-rgb-shield",
-            "https://docs.arduino.cc/hardware/mkr-sd-proto-shield",
-            "https://docs.arduino.cc/hardware/mkr-therm-shield",
-            "https://docs.arduino.cc/hardware/mkr-connector-carrier",
-            "https://docs.arduino.cc/hardware/mkr-iot-carrier",
-            "https://docs.arduino.cc/hardware/mkr-iot-carrier-rev2",
-            "https://docs.arduino.cc/hardware/mkr-motor-carrier",
-            "https://docs.arduino.cc/hardware/portenta-c33",
-            "https://docs.arduino.cc/hardware/portenta-h7",
-            "https://docs.arduino.cc/hardware/portenta-h7-lite",
-            "https://docs.arduino.cc/hardware/portenta-h7-lite-connected",
-            "https://docs.arduino.cc/hardware/portenta-x8",
-            "https://docs.arduino.cc/hardware/portenta-breakout",
-            "https://docs.arduino.cc/hardware/portenta-hat-carrier",
-            "https://docs.arduino.cc/hardware/portenta-max-carrier",
-            "https://docs.arduino.cc/hardware/portenta-mid-carrier",
-            "https://docs.arduino.cc/hardware/pro-4g-module",
-            "https://docs.arduino.cc/hardware/portenta-cat-m1-nb-iot-gnss-shield",
-            "https://docs.arduino.cc/hardware/portenta-mid-carrier-proto-shield",
-            "https://docs.arduino.cc/hardware/portenta-vision-shield",
-            "https://docs.arduino.cc/hardware/uno-r4-wifi",
-            "https://docs.arduino.cc/hardware/leonardo",
+            "https://docs.arduino.cc/hardware/uno-r4-wifi"
         ]
         for url in urls:
-            print("test")
             print(url)
             yield scrapy.Request(url=url, callback=self.parse_product_page)
 
@@ -159,26 +161,25 @@ class QuotesSpider(CrawlSpider):
         for web_item in response.xpath('//*[@id="layout"]/main/div[2]/div[1]'): # It takes the relative links from docs.arduino.org
             # //*[@id="layout"]/main/div[2]/div[1]
 
-            log_print("info","inside web item")
             yield {
                 # 'title': web_item.css('div.product-header__title--text.h1::text').get(),
                 'title': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/section/div[1]/div[1]/div/h1/text()').get(),
                 'description': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/section/div[1]/div[2]/div[1]/p/text()').get(), # If the description includes additional tags (See Opta, won't work)
                 'product_url': response.url,
                 'store_url': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/section/div[2]/div/div[3]/a[contains(@href, "store")]/@href').get(),
-                'tutorials': response.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(), # FIXME new tutorials tab, will need a subsection
+                'tutorials_url': response.url+"#tutorials",
                 'url_alive': response.status,
                 'full-pinout': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "full-pinout")]/@href').get(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
                 'datasheet': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "datasheets")]/@href').get(),
                 'schematics': web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "schematics")]/@href').get(),
-                'cad-files': "https://docs.arduino.cc"+web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "cad-files")]/@href').get()
+                'cad-files': "https://docs.arduino.cc"+str(web_item.xpath('//*[@id="layout"]/main/div[2]/div[1]/div[1]/div[2]/a[contains(@href, "cad-files")]/@href').get()) # FIXME None situations where cad files are not available are tricky
             }
             # FIXME Portenta Machine Control datasheet xpath: "//*[@id="overview"]/div/div[1]/div[2]/div[2]/a" FIXED WITH '//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href'
             # //a[contains(text(), 'programming')]/@href
 
             # Datasheet link
 
-            # TODO call here parse_product_page_soup() function to extract and add more information
+            # TODO call here parse_product_page_soup() function to extract and add more information ?
 
             # Datasheets scrapping
             # next_datasheet = web_item.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get()
@@ -195,27 +196,15 @@ class QuotesSpider(CrawlSpider):
                 self.datasheets_warnings.append("DATASHEET NOT PRESENT: "+response.url)
 
             # Tutorial Scrapping # FIXME docs 2.0 uses another approach
-            tutorials_list = response.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall()
+            
 
-            # Tutorials list print
-            # log_print("warn", f"TUTORIALS LIST: {tutorials_list}")
-            log_print("info", "\n\nTUTORIALS LIST:")
-            for tutorial in tutorials_list:
-                log_print("info", tutorial)
-            log_print("info", "\n\n")
+            # response.urljoin(next_datasheet)
+            # tutorials_url = response.urljoin("#tutorials")  #response.url+"#tutorials"
+            tutorials_url = "https://docs.arduino.cc/hardware/uno-r4-wifi/#tutorials"  #response.url+"#tutorials"
 
-            for next_tutorial in tutorials_list:
-                if next_tutorial is not None:
-                    log_print("info","NEXT TUTORIAL "+str(next_tutorial))
-
-                    next_tutorial = response.urljoin(next_tutorial) #+"2" # 2 to test 404 
-                    log_print("info",next_tutorial)
-                    yield scrapy.Request(next_tutorial, callback=self.parse_tutorial_page)
-                else:
-                    log_print("warn","TUTORIAL NOT PRESENT")
-                    self.datasheets_warnings.append("TUTORIAL NOT PRESENT: "+response.url)
-
-
+            log_print("info", "TRIYING TO YIELD TUTORIALS")
+            print(tutorials_url)
+            yield scrapy.Request(url=tutorials_url, callback=self.parse_tutorial_page,  dont_filter=True) # Being an anchor the dont_filter is need to enter the callback
 
     def parse_product_page_soup(self, response):
         # TODO the selectors from Scrapy are not enough for scraping a website like this
@@ -234,98 +223,111 @@ class QuotesSpider(CrawlSpider):
             self.datasheets_errors.append("DATASHEET NOT WORKING: "+response.url)
 
     def parse_tutorial_page(self, response): # TODO Use beatiful soup, almost impossible with scrappy
+        # tutorials_url = response.url+"#tutorials"
+        print("\n")
         log_print("info", f"TUTORIAL PARSER: {response.url}")
+        print(response)
 
-        self.total_tutorials = self.total_tutorials+1
+        tutorials_list = response.xpath('//*[@id="layout"]/main/div/div[1]/div[2]/div[2]/div/div/div/div[1]/a').get() # FIXME none response, not able to get tutorials links because response.url is main one with no anchor, could not be possible due to the javscript and dynamic page to get that list of tutorials even with the anchor...
 
-        # Warning if a tutorial is broken
-        if (response.status != 200):
-            log_print("error","TUTORIAL NOT WORKING: "+response.url+"\n")
-            # self.datasheets_errors.append("DATASHEET NOT WORKING: "+response.url)
+        # Tutorials list print
+        # log_print("warn", f"TUTORIALS LIST: {tutorials_list}")
+        log_print("info", "\n\nTUTORIALS LIST:")
+        log_print("info", tutorials_list)
+        print(tutorials_list)
+        # for item in tutorials_list:
+        #     log_print("info", item)
 
-       # Product page basic info
-        for web_item_tutorial in response.css('div.tutorial-module--left--f2811'): # It takes the relative links from docs.arduino.org
-            # print(response.css('div.tutorial-module--left--f2811'))
-            # print(response.xpath('//*[@id="layout"]/div/div[1]').get())
-            # print(response.css('h5::text').getall())
-            yield {
-                'title': web_item_tutorial.css('h1::text').get(),
-                'tutorial_url': response.url,
-                'description': web_item_tutorial.xpath('//h1/following-sibling::div[1]/text()').get(),
-                'author': web_item_tutorial.css('div.tutorial-module--metadata--b16ef.tutorial-module--author--c9a7a::text').get(), # FIXME Not working
-                'sections': web_item_tutorial.css('h2::text').getall(),
-                'url_alive': response.status,
-                'urls': web_item_tutorial.css('a::attr(href)').extract(), #.getall()
-                # 'description': response.xpath('//*[@id="layout"]/div/div[1]/div/ul/li[1]/div/text()').get(), # If the description includes additional tags (See Opta, won't work)
-                # 'product_url': response.url,
-                # 'tutorials': web_item_tutorial.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
-                # 'url_alive': web_item_tutorial.status,
-                # 'datasheet': web_item_tutorial.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get(),
-                # 'full-pinout': web_item_tutorial.xpath('//*[@id="resources"]/div/div/div[3]/div[2]/div/a/@href').getall(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
-                # 'troubleshooting': web_item_tutorial.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
-            }
+    #     self.total_tutorials = self.total_tutorials+1
 
-            # URLs to file
-            tutorial_urls = web_item_tutorial.css('a::attr(href)').extract()
+    #     # Warning if a tutorial is broken
+    #     if (response.status != 200):
+    #         log_print("error","TUTORIAL NOT WORKING: "+response.url+"\n")
+    #         # self.datasheets_errors.append("DATASHEET NOT WORKING: "+response.url)
 
-            # Use a set to eliminate duplicates
-            unique_urls = list(set(tutorial_urls))
+    #    # Product page basic info
+    #     for web_item_tutorial in response.css('div.tutorial-module--left--f2811'): # It takes the relative links from docs.arduino.org
+    #         # print(response.css('div.tutorial-module--left--f2811'))
+    #         # print(response.xpath('//*[@id="layout"]/div/div[1]').get())
+    #         # print(response.css('h5::text').getall())
+    #         yield {
+    #             'title': web_item_tutorial.css('h1::text').get(),
+    #             'tutorial_url': response.url,
+    #             'description': web_item_tutorial.xpath('//h1/following-sibling::div[1]/text()').get(),
+    #             'author': web_item_tutorial.css('div.tutorial-module--metadata--b16ef.tutorial-module--author--c9a7a::text').get(), # FIXME Not working
+    #             'sections': web_item_tutorial.css('h2::text').getall(),
+    #             'url_alive': response.status,
+    #             'urls': web_item_tutorial.css('a::attr(href)').extract(), #.getall()
+    #             # 'description': response.xpath('//*[@id="layout"]/div/div[1]/div/ul/li[1]/div/text()').get(), # If the description includes additional tags (See Opta, won't work)
+    #             # 'product_url': response.url,
+    #             # 'tutorials': web_item_tutorial.xpath('//*[@id="tutorials"]/div/div/div/div/div/a/@href').getall(),
+    #             # 'url_alive': web_item_tutorial.status,
+    #             # 'datasheet': web_item_tutorial.xpath('//*[@id="overview"]/div/div[1]/div[2]/div[2]/a[contains(text(), "DATASHEET")]/@href').get(),
+    #             # 'full-pinout': web_item_tutorial.xpath('//*[@id="resources"]/div/div/div[3]/div[2]/div/a/@href').getall(), # FIXME not differences between pdfs, eagle files... use beatifulsoup
+    #             # 'troubleshooting': web_item_tutorial.xpath('//*[@id="troubleshooting"]/div/div/div/div/a/@href').getall(),
+    #         }
 
-            f_404 = open("404_tutorials_ext_urls.txt", mode='w')
-            f_404.close()
+    #         # URLs to file
+    #         tutorial_urls = web_item_tutorial.css('a::attr(href)').extract()
 
-            s = requests.Session()  # It creates a session to speed up the downloads
+    #         # Use a set to eliminate duplicates
+    #         unique_urls = list(set(tutorial_urls))
 
-            with open("tutorials_ext_urls.txt", mode='a') as f:
-                for url in unique_urls:
-                    if "/static/" in url: # To avoid adding static resources like images
-                        log_print("info", f"Static resource ignored: {url}")
-                        continue
-                    elif line_exists("tutorials_ext_urls.txt", url): # To avoid adding duplicates
-                        log_print("info", f"Link duplicated - Ignoring: {url}")
-                        if line_exists("404_tutorials_ext_urls.txt", url):
-                            log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
-                            self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
-                            with open(path_w, mode='a') as f_404:
-                                f_404.write(url)
-                                f_404.close()
-                        continue
-                    else:
-                        new_link = ""
-                        new_link = response.urljoin(url)
-                        f.write(new_link+"\n")
+    #         f_404 = open("404_tutorials_ext_urls.txt", mode='w')
+    #         f_404.close()
 
-                        # Check if the links is alive
-                        for ignore_url in self.ignore_url_list:
-                            if url == ignore_url:
-                                log_print("warn", f"Ignoring URL: {url}")
-                                break
-                            else:
-                                if "http" in url:
-                                    try:
-                                        log_print("info", f"Checking: {url}")
-                                        r = s.get(url, timeout = (10, 30)) # Check the link
-                                        if r.status_code!=200:
-                                            log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
-                                            self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
-                                            with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                                f_404.write(url)
-                                                f_404.close()
-                                    except requests.exceptions.ConnectionError:
-                                        log_print("error",'Network connection error')
-                                        log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
-                                        self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
-                                        with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                            f_404.write(url)
-                                            f_404.close()
-                                    except requests.exceptions.Timeout:
-                                        log_print("error",'The request timed out')
-                                        log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
-                                        self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
-                                        with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
-                                            f_404.write(url)
-                                            f_404.close()
-            f.close()
+    #         s = requests.Session()  # It creates a session to speed up the downloads
+
+    #         with open("tutorials_ext_urls.txt", mode='a') as f:
+    #             for url in unique_urls:
+    #                 if "/static/" in url: # To avoid adding static resources like images
+    #                     log_print("info", f"Static resource ignored: {url}")
+    #                     continue
+    #                 elif line_exists("tutorials_ext_urls.txt", url): # To avoid adding duplicates
+    #                     log_print("info", f"Link duplicated - Ignoring: {url}")
+    #                     if line_exists("404_tutorials_ext_urls.txt", url):
+    #                         log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+    #                         self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+    #                         with open(path_w, mode='a') as f_404:
+    #                             f_404.write(url)
+    #                             f_404.close()
+    #                     continue
+    #                 else:
+    #                     new_link = ""
+    #                     new_link = response.urljoin(url)
+    #                     f.write(new_link+"\n")
+
+    #                     # Check if the links is alive
+    #                     for ignore_url in self.ignore_url_list:
+    #                         if url == ignore_url:
+    #                             log_print("warn", f"Ignoring URL: {url}")
+    #                             break
+    #                         else:
+    #                             if "http" in url:
+    #                                 try:
+    #                                     log_print("info", f"Checking: {url}")
+    #                                     r = s.get(url, timeout = (10, 30)) # Check the link
+    #                                     if r.status_code!=200:
+    #                                         log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+    #                                         self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+    #                                         with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
+    #                                             f_404.write(url)
+    #                                             f_404.close()
+    #                                 except requests.exceptions.ConnectionError:
+    #                                     log_print("error",'Network connection error')
+    #                                     log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+    #                                     self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+    #                                     with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
+    #                                         f_404.write(url)
+    #                                         f_404.close()
+    #                                 except requests.exceptions.Timeout:
+    #                                     log_print("error",'The request timed out')
+    #                                     log_print("error", f"URL BROKEN -> Tutorial: {response.url} Link: {url}")
+    #                                     self.tutorial_ext_urls_errors.append(f"Tutorial: {response.url} Link: {url}")
+    #                                     with open("404_tutorials_ext_urls.txt", mode='a') as f_404:
+    #                                         f_404.write(url)
+    #                                         f_404.close()
+    #         f.close()
 
 
     def closed(self, reason):
